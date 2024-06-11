@@ -3,8 +3,10 @@
 
 #define __DEBUG_
 
+#include "../headers/send.h"
 #include <arpa/inet.h>
 #include <bits/types/struct_timeval.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -19,11 +21,13 @@
 #define DEFAULT_PORT "9090"
 #define MAX_DEVICES_IN_IPv4 0xFF
 
-typedef struct Sock_Setup {
+typedef struct Sock_Setup
+{
   int sock;
 } Sock_Setup;
 
-typedef enum Error_Code {
+typedef enum Error_Code
+{
   GETADDRINFO_ERROR_CODE = -1,
   BIND_ERROR_CODE = -2,
   LISTEN_ERROR_CODE = -3,
@@ -35,10 +39,16 @@ typedef enum Error_Code {
   FGETS_ERROR_CODE = -9
 } Error_Code;
 
-int event_loop(int sock);
-int event_loop_client(int sock);
-Sock_Setup *init_server(const char *port);
-Sock_Setup *init_client(const char *ip, const char *port);
-void greetings_new_user(int connect_sock);
+int event_loop (int sock);
+int event_loop_client (int sock);
+Sock_Setup *init_server (const char *port);
+Sock_Setup *init_client (const char *ip, const char *port);
+void greetings_new_user (int connect_sock);
+void F_A_Q ();
+void handle_message_sent (int sock, Message *msg);
+void handle_file_sent (int sock, File_Msg *fle);
+void htonll (unsigned long long **val);
+void handle_new_message (int sock_fd, fd_set *fd_desk);
+void handle_new_connection (int main_sock, fd_set *fd_desk, int *max_fd);
 
 #endif

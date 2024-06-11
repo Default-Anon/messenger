@@ -118,7 +118,7 @@ int event_loop_client(int sock) {
     fd_set internal_tmp;
     FD_ZERO(&internal_tmp);
     FD_SET(sock, &internal_tmp);
-    FD_SET(STDOUT_FILENO, &internal_tmp);
+    FD_SET(STDIN_FILENO, &internal_tmp);
     int max_fd = sock;
     struct timeval timee;
     timee.tv_sec = 1;
@@ -141,11 +141,15 @@ int event_loop_client(int sock) {
     if (FD_ISSET(STDIN_FILENO, &internal_tmp)) {
       char sent_buffer[4096];
       memset(sent_buffer, 0, sizeof(sent_buffer));
-      if (!fgets(sent_buffer, sizeof(sent_buffer), STDIN_FILENO)) {
+      if (!fgets(sent_buffer, sizeof(sent_buffer), stdin)) {
         perror("fgets");
         return FGETS_ERROR_CODE;
       }
-      send(sock, sent_buffer, sizeof(sent_buffer), 0);
+      printf("%s\n", sent_buffer);
+      int sent_bytes = send(sock, sent_buffer, strlen(sent_buffer), 0);
+#ifdef __DEBUG_
+      printf("bytes sended %d\n", sent_bytes);
+#endif
     }
   }
   return 0;

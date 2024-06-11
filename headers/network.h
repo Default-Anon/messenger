@@ -1,6 +1,8 @@
 #ifndef __NETWORK_H__
 #define __NETWORK_H__
 
+#define __DEBUG_
+
 #include <arpa/inet.h>
 #include <bits/types/struct_timeval.h>
 #include <netdb.h>

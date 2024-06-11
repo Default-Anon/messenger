@@ -4,7 +4,7 @@
 Sock_Setup *setup;
 
 void sig_int_handler() {
-  printf("exec interrupted\n");
+  printf("exec client interrupted\n");
   close(setup->sock);
   free(setup);
   exit(0);

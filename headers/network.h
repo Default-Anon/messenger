@@ -20,6 +20,8 @@
 #define DEFAULT_IP "192.168.0.126"
 #define DEFAULT_PORT "9090"
 #define MAX_DEVICES_IN_IPv4 0xFF
+#define DEFAULT_PATH_FOR_SENDED_FILES "./Sended/"
+#define DELAY_AFTER_SEND_FILE_CHUNK 10 /* in ms */
 
 typedef struct Sock_Setup
 {

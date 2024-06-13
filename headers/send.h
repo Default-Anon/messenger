@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define BODY_LENGTH 4096
+#define BODY_LENGTH 8192
 
 enum Message_Type
 {

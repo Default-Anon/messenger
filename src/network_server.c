@@ -92,8 +92,8 @@ void
 handle_new_message (int sock_fd, fd_set *fd_desk)
 {
   unsigned char *recv_buffer
-      = (unsigned char *)malloc (4096 + sizeof (File_Msg));
-  memset (recv_buffer, '\0', 4096 + sizeof (File_Msg));
+      = (unsigned char *)malloc (BODY_LENGTH + sizeof (File_Msg));
+  memset (recv_buffer, '\0', BODY_LENGTH + sizeof (File_Msg));
   int recv_status = recv (sock_fd, recv_buffer, sizeof (File_Msg), 0);
   if (recv_status == 0)
     {

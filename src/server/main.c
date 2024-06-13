@@ -1,4 +1,6 @@
+#include "../../headers/gui.h"
 #include "../../headers/network.h"
+#include <pthread.h>
 #include <signal.h>
 
 Sock_Setup *setup;
@@ -9,9 +11,9 @@ sig_int_handler ()
   printf ("exec client interrupted\n");
   close (setup->sock);
   free (setup);
+  // CloseWindow ();
   exit (0);
 }
-
 void __attribute__ ((noreturn))
 usage ()
 {
@@ -22,7 +24,6 @@ usage ()
 int
 main (int argc, char **argv)
 {
-
   signal (SIGINT, sig_int_handler);
   int sock;
   if (argc < 2)
@@ -31,7 +32,6 @@ main (int argc, char **argv)
     {
       setup = init_server (argv[1]);
     }
-
   event_loop (setup->sock);
 
   close (setup->sock);

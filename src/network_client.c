@@ -174,7 +174,9 @@ handle_file_sent (int sock, File_Msg *fle)
               printf ("file_msg_sz is %zu\n", file_msg_sz);
               int sent_bytes = send (sock, buffer, file_msg_sz, 0);
               printf ("bytes whether sent is equal %d\n", sent_bytes);
-              usleep (1);
+
+              usleep (DELAY_AFTER_SEND_FILE_CHUNK);
+
               fle->raw_size = raw_size -= read_bytes;
             }
         }

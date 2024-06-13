@@ -1,11 +1,11 @@
 #ifndef __SEND_H__
 #define __SEND_H__
 
+#include <fcntl.h>
+#include <stdio.h>
 #include <string.h>
 
-#define HEADER_LENGTH 10
-#define BODY_LENGTH 1024
-#define END_LENGTH 10
+#define BODY_LENGTH 4096
 
 enum Message_Type
 {
@@ -22,7 +22,7 @@ typedef struct SendBase
 typedef struct SendMessage
 {
   enum Message_Type type;
-  unsigned char *buf;
+  unsigned char buf[BODY_LENGTH];
 } Message;
 
 typedef struct SendFile
@@ -32,10 +32,11 @@ typedef struct SendFile
   char *path_to_file;
   int begin;
   int end;
-  unsigned char body[4096];
+  unsigned char body[BODY_LENGTH];
 } File_Msg;
 
 int find_pattern_from_buf (char *buf, char *pattern);
 enum Message_Type get_message_type (unsigned char *msg);
+int write_to_file (unsigned char *buf, size_t buf_sz);
 
 #endif

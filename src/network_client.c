@@ -1,4 +1,7 @@
 #include "../headers/network.h"
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
 Sock_Setup *
 init_client (const char *ip, const char *port)
@@ -76,7 +79,7 @@ event_loop_client (int sock)
               {
                 printf ("type is MSG\n");
                 Message *msg = (Message *)malloc (sizeof (Message));
-                msg->buf = sent_buffer + 1;
+                strcpy (msg->buf, sent_buffer + 1);
                 handle_message_sent (sock, msg);
                 break;
               }
@@ -137,14 +140,15 @@ handle_file_sent (int sock, File_Msg *fle)
       printf ("File %s size is %llu\n", fle->path_to_file, fle->raw_size);
 #endif
       fle->begin = 1;
-      if (fle->raw_size < 4096)
+      int raw_size = fle->raw_size;
+      while (raw_size)
         {
-          fle->end = 1;
+          printf ("raw_size is %d\n", raw_size);
+          memset (fle->body, 0, BODY_LENGTH);
           int read_bytes = fread (fle->body, sizeof (*fle->body),
                                   sizeof (fle->body), file);
-          printf ("read_bytes is %d\n", read_bytes);
+
           size_t file_msg_sz = sizeof (*fle);
-          printf ("file_msg_sz is %zu\n", file_msg_sz);
           unsigned char buffer[file_msg_sz];
           File_Msg big_endian_convert = *fle;
           unsigned long long *raw_sz = &big_endian_convert.raw_size;
@@ -152,11 +156,27 @@ handle_file_sent (int sock, File_Msg *fle)
           big_endian_convert.type = htonl (big_endian_convert.type);
           big_endian_convert.begin = htonl (big_endian_convert.begin);
           big_endian_convert.end = htonl (big_endian_convert.end);
-          printf ("memcpy right?\n");
           memcpy (buffer, &big_endian_convert, file_msg_sz);
-          printf ("\n\n");
-          int sent_bytes = send (sock, buffer, file_msg_sz, 0);
-          printf ("bytes whether sent is equal %d\n", sent_bytes);
+
+          if (raw_size <= BODY_LENGTH)
+            {
+              fle->end = 1;
+              printf ("read_bytes is %d\n", read_bytes);
+              printf ("file_msg_sz is %zu\n", file_msg_sz);
+              int sent_bytes = send (sock, buffer, file_msg_sz, 0);
+              printf ("bytes whether sent is equal %d\n", sent_bytes);
+              fle->raw_size = raw_size = 0;
+            }
+          else
+            {
+              fle->end = 0;
+              printf ("read_bytes is %d\n", read_bytes);
+              printf ("file_msg_sz is %zu\n", file_msg_sz);
+              int sent_bytes = send (sock, buffer, file_msg_sz, 0);
+              printf ("bytes whether sent is equal %d\n", sent_bytes);
+              usleep (1);
+              fle->raw_size = raw_size -= read_bytes;
+            }
         }
 
       fclose (file);

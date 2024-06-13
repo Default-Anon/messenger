@@ -87,13 +87,14 @@ handle_new_connection (int main_sock, fd_set *fd_desk, int *max_fd)
   FD_SET (connect_sock, &(*fd_desk));
   *max_fd = *max_fd > connect_sock ? *max_fd : connect_sock;
 }
+
 void
 handle_new_message (int sock_fd, fd_set *fd_desk)
 {
   unsigned char *recv_buffer
       = (unsigned char *)malloc (4096 + sizeof (File_Msg));
   memset (recv_buffer, '\0', 4096 + sizeof (File_Msg));
-  int recv_status = recv (sock_fd, recv_buffer, 4096 + sizeof (File_Msg), 0);
+  int recv_status = recv (sock_fd, recv_buffer, sizeof (File_Msg), 0);
   if (recv_status == 0)
     {
       free (recv_buffer);
@@ -108,22 +109,44 @@ handle_new_message (int sock_fd, fd_set *fd_desk)
     }
   else
     {
-      File_Msg *msg = (File_Msg *)recv_buffer;
+      Base *msg = (Base *)recv_buffer;
       msg->type = ntohl (msg->type);
-      unsigned long long *raw_sz = &msg->raw_size;
-      htonll (&raw_sz);
-      msg->begin = ntohl (msg->begin);
-      msg->end = ntohl (msg->end);
-
-      printf ("\n\n");
-      printf ("[Message From User]\n");
-      printf ("%s\n", recv_buffer);
-      int body_recv_length = recv_status - sizeof (File_Msg) + 4096;
-      for (int i = 0; i < body_recv_length; i++)
+      switch (msg->type)
         {
-          printf ("%c ", msg->body[i]);
+        case MSG:
+          {
+            printf ("[Message From User]\n");
+            printf ("%s\n", ((Message *)msg)->buf);
+            break;
+          }
+        case FILE_MSG:
+          {
+            File_Msg *fle = (File_Msg *)msg;
+            unsigned long long *raw_sz = &fle->raw_size;
+            htonll (&raw_sz);
+            fle->begin = ntohl (fle->begin);
+            fle->end = ntohl (fle->end);
+            printf ("[Message From User]\n");
+            printf ("%s\n", fle->body);
+            int body_recv_length
+                = recv_status - (sizeof (File_Msg) - BODY_LENGTH);
+            if (fle->raw_size)
+              {
+                if (fle->raw_size < BODY_LENGTH)
+                  write_to_file (fle->body, fle->raw_size);
+                else
+                  write_to_file (fle->body, body_recv_length);
+              }
+            printf ("\n\n");
+            break;
+          }
+        default:
+          {
+            msg->type = htonl (msg->type);
+            fprintf (stdout, "%s\n", recv_buffer);
+            break;
+          }
         }
-      printf ("\n\n");
       free (recv_buffer);
     }
 }

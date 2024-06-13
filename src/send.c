@@ -1,4 +1,7 @@
 #include "../headers/send.h"
+#include "../headers/network.h"
+#include <stdio.h>
+#include <unistd.h>
 
 enum Message_Type
 get_message_type (unsigned char *msg)
@@ -60,4 +63,17 @@ htonll (unsigned long long **val)
       **val += (buf[i] << k);
       k -= 8;
     }
+}
+int
+write_to_file (unsigned char *buf, size_t buf_sz)
+{
+  FILE *fle_fd = fopen ("output", "a+");
+  if (!fle_fd)
+    {
+      return FOPEN_ERROR_CODE;
+    }
+  int return_code = fwrite (buf, sizeof (*buf), buf_sz, fle_fd);
+
+  fclose (fle_fd);
+  return 0;
 }

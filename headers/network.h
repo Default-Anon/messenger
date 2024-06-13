@@ -26,7 +26,7 @@ typedef struct Sock_Setup
   int sock;
 } Sock_Setup;
 
-typedef enum Error_Code
+typedef enum Err_Code
 {
   GETADDRINFO_ERROR_CODE = -1,
   BIND_ERROR_CODE = -2,
@@ -36,7 +36,8 @@ typedef enum Error_Code
   SEND_ERROR_CODE = -6,
   RECV_ERROR_CODE = -7,
   CONNECT_ERROR_CODE = -8,
-  FGETS_ERROR_CODE = -9
+  FGETS_ERROR_CODE = -9,
+  FOPEN_ERROR_CODE = -10
 } Error_Code;
 
 int event_loop (int sock);
